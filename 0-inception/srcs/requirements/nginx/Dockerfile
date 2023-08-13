@@ -29,7 +29,7 @@ COPY $PWD/conf/index.html /www/index.html
 WORKDIR /www
 
 # Entrypoint
-COPY $PWD/conf/entrypoint.sh /usr/local/bin/
+COPY $PWD/tools/entrypoint.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
@@ -38,5 +38,9 @@ ENTRYPOINT ["/bin/sh", "/usr/local/bin/entrypoint.sh"]
 # Expose the ports
 EXPOSE 80 443
 
+STOPSIGNAL SIGQUIT
+
 # RUN COMMAND
 CMD ["/bin/sh", "-c", "nginx -g 'daemon off;'; nginx -s reload;"]
+
+
