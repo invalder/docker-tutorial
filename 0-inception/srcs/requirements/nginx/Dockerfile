@@ -5,11 +5,38 @@ FROM alpine:3.18
 
 LABEL maintainer="Inception Team <nnakarac@42.fr>"
 
-# Install nginx
-RUN apk update && apk add nginx; \
-	mkdir -p /run/nginx; \
-	echo "<h1>Hello World!</h1>" > /var/localhost/htdocs/index.html;
+# RUN
+RUN apk update && apk add nginx openssl
 
-# Configurations
-# Copy nginx config file
-ADD $PWD/conf/default.conf /etc/nginx/conf.d/default.conf
+# Create www user and group
+RUN adduser -D -g 'www' www
+
+# Create the directory for html files
+RUN mkdir /www
+RUN chown -R www:www /var/lib/nginx
+RUN chown -R www:www /www
+
+# Copy the configuration file
+COPY $PWD/conf/nginx.conf /etc/nginx/nginx.conf
+
+# Copy the certificate and key files
+COPY $PWD/conf/nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
+COPY $PWD/conf/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
+
+# Copy the index.html file
+COPY $PWD/conf/index.html /www/index.html
+
+WORKDIR /www
+
+# Entrypoint
+COPY $PWD/conf/entrypoint.sh /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/bin/sh", "/usr/local/bin/entrypoint.sh"]
+
+# Expose the ports
+EXPOSE 80 443
+
+# RUN COMMAND
+CMD ["/bin/sh", "-c", "nginx -g 'daemon off;'; nginx -s reload;"]
