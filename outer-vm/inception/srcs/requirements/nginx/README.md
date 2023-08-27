@@ -336,3 +336,13 @@ fi
 # Needed to make sure nginx is running after the commands are run
 nginx -g 'daemon off;'; nginx -s reload;
 ```
+
+# 6. Build the Dockerfile
+```
+docker build . -t nginx-ssl;
+```
+
+# 7. Test the container
+```
+docker run -it -d -p 80:80 -p 443:443 --name test nginx-ssl;
+```
